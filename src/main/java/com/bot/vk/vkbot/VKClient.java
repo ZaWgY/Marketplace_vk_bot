@@ -7,6 +7,7 @@ import com.vk.api.sdk.httpclient.HttpTransportClient;
 import com.vk.api.sdk.exceptions.*;
 import com.vk.api.sdk.objects.messages.Dialog;
 import com.vk.api.sdk.objects.messages.Message;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@Log4j2
 @Component
 public class VKClient implements IClient{
 
@@ -35,27 +37,27 @@ public class VKClient implements IClient{
 
     @Override
     public void SendMessage(String message, int id){
+        log.info("Sending message...");
         Random random = new Random();
         try {
             this.apiClient.messages().send(actor).message(message).userId(id).randomId(random.nextInt()).execute();
-        } catch (ApiException e) {
-            e.printStackTrace();
-        } catch (ClientException e) {
+        } catch (ApiException | ClientException e) {
+            log.error(e);
             e.printStackTrace();
         }
     }
 
     @Override
     public List<Message> ReadMessages(){
-        List<Message> result = new ArrayList<Message>();
+        log.info("Reading message...");
+        List<Message> result = new ArrayList<>();
         try {
             List<Dialog> dialogs = apiClient.messages().getDialogs(actor).unanswered1(true).execute().getItems();
             for (Dialog item: dialogs) {
                 result.add(item.getMessage());
             }
-        } catch (ApiException e) {
-            e.printStackTrace();
-        } catch (ClientException e) {
+        } catch (ApiException | ClientException e) {
+            log.error(e);
             e.printStackTrace();
         }
         return result;
@@ -63,6 +65,7 @@ public class VKClient implements IClient{
 
     @Override
     public void ReplyForMessages(List<Message> messages) {
+        log.info("Replying message...");
         String body;
         for (Message item: messages) {
             body = item.getBody();
@@ -72,12 +75,12 @@ public class VKClient implements IClient{
 
     @Override
     public int GetMembersCount() {
+        log.info("Getting member count...");
         int result = 0;
         try {
             result = apiClient.groups().getMembers(actor).groupId(actor.getGroupId().toString()).execute().getItems().size();
-        } catch (ApiException e) {
-            e.printStackTrace();
-        } catch (ClientException e) {
+        } catch (ApiException | ClientException e) {
+            log.error(e);
             e.printStackTrace();
         }
         return result;
@@ -86,12 +89,12 @@ public class VKClient implements IClient{
 
     @Override
     public List<Integer> GetMembers() {
+        log.info("Getting members list...");
         List<Integer> result = null;
         try {
             result = apiClient.groups().getMembers(actor).groupId(actor.getGroupId().toString()).execute().getItems();
-        } catch (ApiException e) {
-            e.printStackTrace();
-        } catch (ClientException e) {
+        } catch (ApiException | ClientException e) {
+            log.error(e);
             e.printStackTrace();
         }
         return result;

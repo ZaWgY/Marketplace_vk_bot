@@ -17,6 +17,6 @@ public class VKClientRunner {
     public void scheduleFixedDelayTask() {
         System.out.print("It work!");
         List<Message> messages = client.ReadMessages();
-        client.ReplyForMessages(messages);
+        if(!messages.isEmpty()) client.ReplyForMessages(messages);
     }
 }
